@@ -1,31 +1,36 @@
-﻿#region Using directives
-
-using System;
-using System.Reflection;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-#endregion
-
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("растеризатор")]
+// Общие сведения об этой сборке предоставляются следующим набором
+// набора атрибутов. Измените значения этих атрибутов для изменения сведений,
+// связанных со сборкой.
+[assembly: AssemblyTitle("WindowsFormsApp2")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("растеризатор")]
-[assembly: AssemblyCopyright("Copyright 2024")]
+[assembly: AssemblyProduct("WindowsFormsApp2")]
+[assembly: AssemblyCopyright("Copyright ©  2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-// This sets the default COM visibility of types in the assembly to invisible.
-// If you need to expose a type to COM, use [ComVisible(true)] on that type.
+// Установка значения False для параметра ComVisible делает типы в этой сборке невидимыми
+// для компонентов COM. Если необходимо обратиться к типу в этой сборке через
+// COM, следует установить атрибут ComVisible в TRUE для этого типа.
 [assembly: ComVisible(false)]
 
-// The assembly version has following format :
+// Следующий GUID служит для идентификации библиотеки типов, если этот проект будет видимым для COM
+[assembly: Guid("f8e23b1d-5b5f-45b3-80a4-4168d726e45b")]
+
+// Сведения о версии сборки состоят из указанных ниже четырех значений:
 //
-// Major.Minor.Build.Revision
+//      Основной номер версии
+//      Дополнительный номер версии
+//      Номер сборки
+//      Редакция
 //
-// You can specify all the values or you can use the default the Revision and 
-// Build Numbers by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.*")]
+// Можно задать все значения или принять номера сборки и редакции по умолчанию 
+// используя "*", как показано ниже:
+// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
