@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WindowsFormsApp2
+namespace растеризатор
 {
     public class Quaternion
     {
@@ -212,37 +212,70 @@ namespace WindowsFormsApp2
                                           Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Km);
             return q.Mul(h).Mul(q.Conj());
         }
+        
+        public Quaternion RotateW(Quaternion axis, double angle)
+        {
+            Quaternion h = new Quaternion(Re, Im, Jm, Km);
+            Quaternion q = new Quaternion(Math.Cos(angle / 2 * axis.Abs()),
+                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Im,
+                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Jm,
+                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Km);
+            return q.Mul(h).Mul(q);
+        }
+        public static Quaternion RotateW(Quaternion h, Quaternion axis, double angle)
+        {
+            Quaternion q = new Quaternion(Math.Cos(angle / 2 * axis.Abs()),
+                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Im, 
+                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Jm, 
+                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Km);
+            return q.Mul(h).Mul(q);
+        }
 
-        //public double Angle() // угол направления числа
-        //{
-        //    return Math.Acos(Sign().Re) * Sign(Math.Asin(Sign().Im));
-        //}
-        //public static double Angle(double a) // угол направления числа
-        //{
-        //    return Math.Acos(Sign(a));
-        //}
-        //public static double Angle(Complex a) // угол направления числа
-        //{
-        //    return Math.Acos(Sign(a).Re) * Sign(Math.Asin(Sign(a).Im));
-        //}
+        public double Arg() // угол направления числа
+        {
+        	return Math.Acos(Sign().Re);
+        }
+        public static double Arg(double a) // угол направления числа
+        {
+            return Math.Acos(Sign(a));
+        }
+        public static double Arg(Quaternion a) // угол направления числа
+        {
+            return Math.Acos(Sign(a).Re);
+        }
 
-        //public Complex Drct() // числовое направление угла
-        //{
-        //    return Sum(Cos(), Mul(Sin(), new Complex(0, 1)));
-        //}
-        //public static Complex Drct(double a) // числовое направление угла
-        //{
-        //    return new Complex(Math.Cos(a), Math.Sin(a));
-        //}
-        //public static Complex Drct(Complex a) // числовое направление угла
-        //{
-        //    return Sum(Cos(a), Mul(Sin(a), new Complex(0, 1)));
-        //}
+        public Quaternion Exp() // числовое направление угла
+        {
+            Quaternion v = new Quaternion(Im, Jm, Km);
+            return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(Re)); 
+        }
+        public Quaternion Exp(double k) // числовое направление угла
+        {
+            Quaternion h = new Quaternion(Re, Im, Jm, Km);
+            Quaternion v = new Quaternion(h.Mul(k).Im, h.Mul(k).Jm, h.Mul(k).Km);
+            return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(h.Mul(k).Re));
+        }
+        public Quaternion Exp(Quaternion q) // числовое направление угла
+        {
+        	Quaternion h = new Quaternion(Re, Im, Jm, Km);
+            Quaternion v = new Quaternion(h.Mul(q).Im, h.Mul(q).Jm, h.Mul(q).Km);
+            return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(h.Mul(q).Re));
+        }
+        public static Quaternion Exp(double h, Quaternion q) // числовое направление угла
+        {
+            Quaternion v = new Quaternion(q.Mul(h).Im, q.Mul(h).Jm, q.Mul(h).Km);
+            return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(q.Mul(h).Re));
+        }
+        public static Quaternion Exp(Quaternion h, Quaternion q) // числовое направление угла
+        {
+            Quaternion v = new Quaternion(h.Mul(q).Im, h.Mul(q).Jm, h.Mul(q).Km);
+            return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(h.Mul(q).Re));
+        }
 
-        //public Complex Exp(int b) // ^ возведение в степень через предел
+        //public Quaternion Pow(int b) // ^ возведение в степень через предел
         //{
-        //    Complex a = new Complex(Re, Im);
-        //    Complex c = new Complex(1);
+        //    Quaternion a = new Quaternion(Re, Im, Jm, Km);
+        //    Quaternion c = new Quaternion(1);
         //    if (b >= 0) for (int i = 0; i < b; i++)
         //        {
         //            c = c.Mul(a);
@@ -253,25 +286,9 @@ namespace WindowsFormsApp2
         //        }
         //    return c;
         //}
-        //public Complex Exp(double b) // ^ возведение в степень через предел
+        //public static Quaternion Pow(Quaternion a, int b) // ^ возведение в степень через предел
         //{
-        //    Complex a = new Complex(Re, Im);
-        //    Complex c1 = Mul(Math.Pow(Abs(a), Math.Pow(0.1, d)), Drct(Angle(a) * Math.Pow(0.1, d)));
-        //    Complex c2 = Sum(1, Mul(b, Sub(c1, 1)));
-        //    Complex c3 = Mul(Math.Pow(Abs(c2), Math.Pow(10, d)), Drct(Angle(c2) * Math.Pow(10, d)));
-        //    return c3;
-        //}
-        //public Complex Exp(Complex b) // ^ возведение в степень через предел
-        //{
-        //    Complex a = new Complex(Re, Im);
-        //    Complex c1 = Mul(Math.Pow(Abs(a), Math.Pow(0.1, d)), Drct(Angle(a) * Math.Pow(0.1, d)));
-        //    Complex c2 = Sum(1, Mul(b, Sub(c1, 1)));
-        //    Complex c3 = Mul(Math.Pow(Abs(c2), Math.Pow(10, d)), Drct(Angle(c2) * Math.Pow(10, d)));
-        //    return c3;
-        //}
-        //public static Complex Exp(Complex a, int b) // ^ возведение в степень через предел
-        //{
-        //    Complex c = new Complex(1);
+        //    Quaternion c = new Quaternion(1);
         //    if (b >= 0) for (int i = 0; i < b; i++)
         //        {
         //            c = c.Mul(a);
@@ -282,129 +299,102 @@ namespace WindowsFormsApp2
         //        }
         //    return c;
         //}
-        //public static Complex Exp(double a, double b) // ^ возведение в степень через предел
-        //{
-        //    Complex c1 = Mul(Math.Pow(Abs(a), Math.Pow(0.1, d)), Drct(Angle(new Complex(a)) * Math.Pow(0.1, d)));
-        //    Complex c2 = Sum(1, Mul(b, Sub(c1, 1)));
-        //    Complex c3 = Mul(Math.Pow(Abs(c2), Math.Pow(10, d)), Drct(Angle(c2) * Math.Pow(10, d)));
-        //    return c3;
-        //}
-        //public static Complex Exp(double a, Complex b) // ^ возведение в степень через предел
-        //{
-        //    Complex c1 = Mul(Math.Pow(Abs(a), Math.Pow(0.1, d)), Drct(Angle(new Complex(a)) * Math.Pow(0.1, d)));
-        //    Complex c2 = Sum(1, Mul(b, Sub(c1, 1)));
-        //    Complex c3 = Mul(Math.Pow(Abs(c2), Math.Pow(10, d)), Drct(Angle(c2) * Math.Pow(10, d)));
-        //    return c3;
-        //}
-        //public static Complex Exp(Complex a, double b) // ^ возведение в степень через предел
-        //{
-        //    Complex c1 = Mul(Math.Pow(Abs(a), Math.Pow(0.1, d)), Drct(Angle(a) * Math.Pow(0.1, d)));
-        //    Complex c2 = Sum(1, Mul(b, Sub(c1, 1)));
-        //    Complex c3 = Mul(Math.Pow(Abs(c2), Math.Pow(10, d)), Drct(Angle(c2) * Math.Pow(10, d)));
-        //    return c3;
-        //}
-        //public static Complex Exp(Complex a, Complex b) // ^ возведение в степень через предел
-        //{
-        //    Complex c1 = Mul(Math.Pow(Abs(a), Math.Pow(0.1, d)), Drct(Angle(a) * Math.Pow(0.1, d)));
-        //    Complex c2 = Sum(1, Mul(b, Sub(c1, 1)));
-        //    Complex c3 = Mul(Math.Pow(Abs(c2), Math.Pow(10, d)), Drct(Angle(c2) * Math.Pow(10, d)));
-        //    return c3;
-        //}
+        public Quaternion Pow(double b) // ^ возведение в степень
+        {
+            Quaternion v = new Quaternion(Im, Jm, Km);
+            double c1 = Math.Pow(Abs(), b);
+            Quaternion c2 = Exp(Arg() * b, v.Sign());
+            if (Abs() == 0) return new Quaternion(0);
+            else return Mul(c1, c2);
+        }
+        public Quaternion Pow(Quaternion b) // ^ возведение в степень
+        {
+            Quaternion va = new Quaternion(Im, Jm, Km);
+            Quaternion vb = new Quaternion(b.Im, b.Jm, b.Km);
+            double c1 = Math.Pow(Abs(), b.Re);
+            Quaternion c2 = Exp(Arg() * b.Re, va.Sign());
+            Quaternion c3 = Exp(Math.Log(Abs()), vb);
+            Quaternion c4 = Exp(va.Sign().Mul(Arg()), vb);
+            if (Abs() == 0) return new Quaternion(0);
+            else return Mul(c1, c2).Mul(c3).Mul(c4);
+        }
+        public static Quaternion Pow(double a, double b) // ^ возведение в степень
+        {
+            double c1 = Math.Pow(Abs(a), b);
+            Quaternion c2 = Exp(Arg(a) * b, new Quaternion(1, 0, 0));
+            if (a == 0) return new Quaternion(0);
+            else return Mul(c1, c2);
+        }
+        public static Quaternion Pow(double a, Quaternion b) // ^ возведение в степень
+        {
+            Quaternion vb = new Quaternion(b.Im, b.Jm, b.Km);
+            double c1 = Math.Pow(Abs(a), b.Re);
+            Quaternion c2 = Exp(Arg(a) * b.Re, new Quaternion(1, 0, 0));
+            Quaternion c3 = Exp(Math.Log(Abs(a)), vb);
+            Quaternion c4 = Exp(Arg(a), vb);
+            if (a == 0) return new Quaternion(0);
+            else return Mul(c1, c2).Mul(c3).Mul(c4);
+        }
+        public static Quaternion Pow(Quaternion a, double b) // ^ возведение в степень
+        {
+            Quaternion v = new Quaternion(a.Im, a.Jm, a.Km);
+            double c1 = Math.Pow(a.Abs(), b);
+            Quaternion c2 = Exp(a.Arg() * b, v.Sign());
+            if (a.Abs() == 0) return new Quaternion(0);
+            else return Mul(c1, c2);
+        }
+        public static Quaternion Pow(Quaternion a, Quaternion b) // ^ возведение в степень
+        {
+            Quaternion va = new Quaternion(a.Im, a.Jm, a.Km);
+            Quaternion vb = new Quaternion(b.Im, b.Jm, b.Km);
+            double c1 = Math.Pow(a.Abs(), b.Re);
+            Quaternion c2 = Exp(a.Arg() * b.Re, va.Sign());
+            Quaternion c3 = Exp(Math.Log(a.Abs()), vb);
+            Quaternion c4 = Exp(va.Sign().Mul(a.Arg()), vb);
+            if (a.Abs() == 0) return new Quaternion(0);
+            else return Mul(c1, c2).Mul(c3).Mul(c4);
+        }
 
-        //public Complex Pow(double b) // ^ возведение в степень
-        //{
-        //    Complex a = new Complex(Re, Im);
-        //    double c1 = Math.Pow(a.Abs(), b);
-        //    Complex c2 = Drct(a.Angle() * b);
-        //    return Mul(c1, c2);
-        //}
-        //public Complex Pow(Complex b) // ^ возведение в степень
-        //{
-        //    Complex a = new Complex(Re, Im);
-        //    double c1 = Math.Pow(a.Abs(), b.Re);
-        //    Complex c2 = Drct(a.Angle() * b.Re);
-        //    Complex c3 = Drct(Math.Log(a.Abs()) * b.Im);
-        //    double c4 = Math.Pow(Math.E, -b.Im * a.Angle());
-        //    if (a.Re == 0 && a.Im == 0) return new Complex(0);
-        //    else return Mul(Mul(c1, c2), Mul(c3, c4));
-        //}
-        //public static Complex Pow(double a, double b) // ^ возведение в степень
-        //{
-        //    double c1 = Math.Pow(Abs(a), b);
-        //    Complex c2 = Drct(Angle(a) * b);
-        //    return Mul(c1, c2);
-        //}
-        //public static Complex Pow(double a, Complex b) // ^ возведение в степень
-        //{
-        //    double c1 = Math.Pow(a, b.Re);
-        //    Complex c2 = Drct(Angle(a) * b.Re);
-        //    Complex c3 = Drct(Math.Log(Abs(a)) * b.Im);
-        //    double c4 = Math.Pow(Math.E, -b.Im * Angle(a));
-        //    if (a == 0) return new Complex(0);
-        //    else return Mul(Mul(c1, c2), Mul(c3, c4));
-        //}
-        //public static Complex Pow(Complex a, double b) // ^ возведение в степень
-        //{
-        //    double c1 = Math.Pow(a.Abs(), b);
-        //    Complex c2 = Drct(a.Angle() * b);
-        //    return Mul(c1, c2);
-        //}
-        //public static Complex Pow(Complex a, Complex b) // ^ возведение в степень
-        //{
-        //    double c1 = Math.Pow(a.Abs(), b.Re);
-        //    Complex c2 = Drct(a.Angle() * b.Re);
-        //    Complex c3 = Drct(Math.Log(a.Abs()) * b.Im);
-        //    double c4 = Math.Pow(Math.E, -b.Im * a.Angle());
-        //    if (a.Re == 0 && a.Im == 0) return new Complex(0);
-        //    else return Mul(Mul(c1, c2), Mul(c3, c4));
-        //}
+        public Quaternion Ln() // ln() натуральный логарифм через предел
+        {
+            Quaternion h = new Quaternion(Re, Im, Jm, Km);
+            return new Quaternion(Im, Jm, Km).Sign().Mul(h.Arg()).Sum(Math.Log(h.Abs()));
+        }
+        public static Quaternion Ln(double a) // ln() натуральный логарифм через предел
+        {
+            return new Quaternion(Math.Log(a));
+        }
+        public static Quaternion Ln(Quaternion h) // ln() натуральный логарифм через предел
+        {
+            return new Quaternion(h.Im, h.Jm, h.Km).Sign().Mul(h.Arg()).Sum(Math.Log(h.Abs()));
+        }
 
-        //public Complex Ln() // ln() натуральный логарифм через предел
-        //{
-        //    Complex a = new Complex(Re, Im);
-        //    Complex c1 = Mul(Math.Pow(Abs(a), Math.Pow(0.1, d)), Drct(Angle(a) * Math.Pow(0.1, d)));
-        //    Complex c2 = Mul(Math.Pow(10, d), Sub(c1, 1));
-        //
-        //    return c2;
-        //}
-        //public static Complex Ln(double a) // ln() натуральный логарифм через предел
-        //{
-        //    return new Complex(Math.Log(a));
-        //}
-        //public static Complex Ln(Complex a) // ln() натуральный логарифм через предел
-        //{
-        //    Complex c1 = Mul(Math.Pow(Abs(a), Math.Pow(0.1, d)), Drct(Angle(a) * Math.Pow(0.1, d)));
-        //    Complex c2 = Mul(Math.Pow(10, d), Sub(c1, 1));
-        //
-        //    return c2;
-        //}
-
-        //public Complex Log(double a) // log() логарифм
-        //{
-        //    Complex b = new Complex(Re, Im);
-        //    return Div(Ln(b), Ln(a));
-        //}
-        //public Complex Log(Complex a) // log() логарифм
-        //{
-        //    Complex b = new Complex(Re, Im);
-        //    return Div(Ln(b), Ln(a));
-        //}
-        //public static Complex Log(double a, double b) // log() логарифм
-        //{
-        //    return Div(Ln(b), Ln(a));
-        //}
-        //public static Complex Log(double a, Complex b) // log() логарифм
-        //{
-        //    return Div(Ln(b), Ln(a));
-        //}
-        //public static Complex Log(Complex a, double b) // log() логарифм
-        //{
-        //    return Div(Ln(b), Ln(a));
-        //}
-        //public static Complex Log(Complex a, Complex b) // log() логарифм
-        //{
-        //    return Div(Ln(b), Ln(a));
-        //}
+        public Quaternion Log(double a) // log() логарифм
+        {
+            Quaternion b = new Quaternion(Re, Im, Jm, Km);
+            return Div(Ln(b), Ln(a));
+        }
+        public Quaternion Log(Quaternion a) // log() логарифм
+        {
+            Quaternion b = new Quaternion(Re, Im, Jm, Km);
+            return Div(Ln(b), Ln(a));
+        }
+        public static Quaternion Log(double a, double b) // log() логарифм
+        {
+            return Div(Ln(b), Ln(a));
+        }
+        public static Quaternion Log(double a, Quaternion b) // log() логарифм
+        {
+            return Div(Ln(b), Ln(a));
+        }
+        public static Quaternion Log(Quaternion a, double b) // log() логарифм
+        {
+            return Div(Ln(b), Ln(a));
+        }
+        public static Quaternion Log(Quaternion a, Quaternion b) // log() логарифм
+        {
+            return Div(Ln(b), Ln(a));
+        }
 
         //public Complex Sin() // sin() синус
         //{
@@ -433,5 +423,25 @@ namespace WindowsFormsApp2
         //{
         //    return Div(Sum(Pow(Math.E, Mul(a, new Complex(0, 1))), Pow(Math.E, Mul(a, new Complex(0, -1)))), 2);
         //}
+
+        public Quaternion Cosh()
+        {
+            Quaternion h = new Quaternion(Re, Im, Jm, Km);
+            return h.Exp().Sum(h.Exp(-1)).Div(2);
+        }
+        public static Quaternion Cosh(Quaternion h)
+        {
+            return h.Exp().Sum(h.Exp(-1)).Div(2);
+        }
+
+        public Quaternion Sinh()
+        {
+            Quaternion h = new Quaternion(Re, Im, Jm, Km);
+            return h.Exp().Sub(h.Exp(-1)).Div(2);
+        }
+        public static Quaternion Sinh(Quaternion h)
+        {
+            return h.Exp().Sub(h.Exp(-1)).Div(2);
+        }
     }
 }
