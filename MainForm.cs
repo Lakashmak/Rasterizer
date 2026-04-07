@@ -14,13 +14,15 @@ namespace растеризатор
 	{
 		Graphics gr;
 		Bitmap bitmap;
-		Quaternion loc = new Quaternion(-3, 0, 0, -3); // координаты камеры
+		Quaternion loc = new Quaternion(0, 0, 0, -3); // координаты камеры
 		Quaternion vel = new Quaternion(0); // скрость камеры
 		double k = 1086; // масштаб
 		double a = 2.5; // глубина
 		int t = 0;
 		Quaternion rot1 = new Quaternion(1);
 		Quaternion rot2 = new Quaternion(1);
+		Figure Cube = new Figure("Cube", new Quaternion(0, 0, 0));
+		string text = "";
 		public MainForm()
 		{
 			InitializeComponent();
@@ -29,6 +31,18 @@ namespace растеризатор
 			gr.Clear(Color.White);
 			pictureBox1.Image = bitmap;
 			timer1.Start();
+			
+			//for(int i = 0; i < 16; i++) 
+			//{
+			//	Quaternion h1 = new Quaternion(((i/8)%2 - 0.5)*2, ((i/4)%2 - 0.5)*2, ((i/2)%2 - 0.5)*2, (i%2 - 0.5)*2);
+			//	bool j = false; if (i == 0) j = true;
+			//	foreach (Quaternion h2 in points) 
+			//	{
+			//		if(h1.Sub(h2).Abs() == 2*Math.Sqrt(1)) j = true;
+			//	}
+			//	if(j) points.Add(h1);
+			//}
+			//foreach (Quaternion e in points) text += e.Re + " " + e.Im + " " + e.Jm + " " + e.Km + "\n";
 		}
 		
 		private void MainFormKeyDown(object sender, KeyEventArgs e)
@@ -80,65 +94,33 @@ namespace растеризатор
 			loc.Jm += vel.Jm / 25;
 			loc.Km += vel.Km / 25;
 			loc.Re += vel.Re / 25;
-			gr.Clear(Color.White);
+			gr.Clear(Color.Black);
 			try
 			{
 				if (loc.Km * loc.Km + loc.Re * loc.Re >= 0)
 				{
-				/*if ((1 - z) > 0)                */ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1,  1,  1)), draw_calculation(new Quaternion( 1, -1,  1,  1)));
-				/*if ((1 - z) > 0)                */ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1,  1,  1)), draw_calculation(new Quaternion( 1,  1, -1,  1)));
-				/*if ((1 - z) > 0)                */ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1, -1,  1)), draw_calculation(new Quaternion( 1, -1,  1,  1)));
-				/*if ((1 - z) > 0)                */ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1, -1,  1)), draw_calculation(new Quaternion( 1,  1, -1,  1)));
-				
-				/*if ((-1 - z) > 0)               */ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1,  1, -1)), draw_calculation(new Quaternion( 1, -1,  1, -1)));
-				/*if ((-1 - z) > 0)               */ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1,  1, -1)), draw_calculation(new Quaternion( 1,  1, -1, -1)));
-				/*if ((-1 - z) > 0)               */ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1, -1, -1)), draw_calculation(new Quaternion( 1, -1,  1, -1)));
-				/*if ((-1 - z) > 0)               */ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1, -1, -1)), draw_calculation(new Quaternion( 1,  1, -1, -1)));
-				
-				/*if ((1 - z) > 0 && (-1 - z) > 0)*/ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1,  1, -1)), draw_calculation(new Quaternion( 1,  1,  1,  1)));
-				/*if ((1 - z) > 0 && (-1 - z) > 0)*/ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1, -1, -1)), draw_calculation(new Quaternion( 1,  1, -1,  1)));
-				/*if ((1 - z) > 0 && (-1 - z) > 0)*/ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1,  1, -1)), draw_calculation(new Quaternion( 1, -1,  1,  1)));
-				/*if ((1 - z) > 0 && (-1 - z) > 0)*/ gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1, -1, -1)), draw_calculation(new Quaternion( 1, -1, -1,  1)));
-				
-				
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1,  1,  1,  1)), draw_calculation(new Quaternion(-1, -1,  1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1,  1,  1,  1)), draw_calculation(new Quaternion(-1,  1, -1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1, -1, -1,  1)), draw_calculation(new Quaternion(-1, -1,  1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1, -1, -1,  1)), draw_calculation(new Quaternion(-1,  1, -1,  1)));
-				
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1,  1,  1, -1)), draw_calculation(new Quaternion(-1, -1,  1, -1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1,  1,  1, -1)), draw_calculation(new Quaternion(-1,  1, -1, -1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1, -1, -1, -1)), draw_calculation(new Quaternion(-1, -1,  1, -1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1, -1, -1, -1)), draw_calculation(new Quaternion(-1,  1, -1, -1)));
-				
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1,  1,  1, -1)), draw_calculation(new Quaternion(-1,  1,  1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1,  1, -1, -1)), draw_calculation(new Quaternion(-1,  1, -1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1, -1,  1, -1)), draw_calculation(new Quaternion(-1, -1,  1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion(-1, -1, -1, -1)), draw_calculation(new Quaternion(-1, -1, -1,  1)));
-				
-				
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1,  1,  1)), draw_calculation(new Quaternion(-1,  1,  1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1,  1, -1)), draw_calculation(new Quaternion(-1,  1,  1, -1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1, -1,  1)), draw_calculation(new Quaternion(-1,  1, -1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1,  1, -1, -1)), draw_calculation(new Quaternion(-1,  1, -1, -1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1,  1,  1)), draw_calculation(new Quaternion(-1, -1,  1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1,  1, -1)), draw_calculation(new Quaternion(-1, -1,  1, -1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1, -1,  1)), draw_calculation(new Quaternion(-1, -1, -1,  1)));
-				gr.DrawLine(new Pen(Color.Black), draw_calculation(new Quaternion( 1, -1, -1, -1)), draw_calculation(new Quaternion(-1, -1, -1, -1)));
+					//foreach (Quaternion h1 in points) foreach (Quaternion h2 in points) 
+					//{
+					//	if(h1.Sub(h2).Abs() == 2*Math.Sqrt(1)) gr.DrawLine(new Pen(Color.White), draw_calculation(h1), draw_calculation(h2));
+					//	if(h1.Sub(h2).Abs() == 2*Math.Sqrt(2)) gr.DrawLine(new Pen(Color.Lime), draw_calculation(h1), draw_calculation(h2));
+					//	if(h1.Sub(h2).Abs() == 2*Math.Sqrt(3)) gr.DrawLine(new Pen(Color.Red), draw_calculation(h1), draw_calculation(h2));
+					//	if(h1.Sub(h2).Abs() == 2*Math.Sqrt(4)) gr.DrawLine(new Pen(Color.Blue), draw_calculation(h1), draw_calculation(h2));
+					//}
+					
+					foreach (Face l in Cube.lines) gr.DrawLine(l.color, draw_calculation(l.h1.Sum(Cube.location)), draw_calculation(l.h2.Sum(Cube.location)));
 				}
-
 				gr.DrawEllipse(new Pen(Color.Red), (float)(pictureBox1.Width / 2 - k), (float)(pictureBox1.Height / 2 - k), (float)(2 * k), (float)(2 * k));
 			} catch { }
 			pictureBox1.Image = bitmap;
 
-			label1.Text = "x: " + loc.Im + "\ny: " + loc.Jm + "\nz: " + loc.Km + "\nw: " + loc.Re + "\nмасштаб: " + k + "\nглубина: " + a + "\nвремя: " + t;
+			label1.Text = "x: " + loc.Im + "\ny: " + loc.Jm + "\nz: " + loc.Km + "\nw: " + loc.Re + "\nмасштаб: " + k + "\nглубина: " + a + "\nвремя: " + t + "\n\n" + text;
 			t++;
 		}
 		
 		Point draw_calculation(Quaternion h)
 		{
-			//Quaternion h0 = h.RotateW(new Quaternion(Math.Sin(0.01 * t), Math.Sin(0.01 * t + 2 * Math.PI / 3), Math.Sin(0.01 * t + 4 * Math.PI / 3)), 1);
-			Quaternion h0 = h.Rotate(new Quaternion(1, 0, 0), 0.01 * t).RotateW(new Quaternion(0, 1, 0), 0.01 * t);
+			Quaternion h0 = h.Rotate(new Quaternion(Math.Sin(0.01 * t), Math.Sin(0.01 * t + 2 * Math.PI / 3), Math.Sin(0.01 * t + 4 * Math.PI / 3)), 1);
+			//Quaternion h0 = h.Rotate(new Quaternion(1, 0, 0), 0.01 * t * 0).RotateW(new Quaternion(0, 1, 0), 0.01 * t * 0);
 			h0 = h0.Rotate(rot1, 1).RotateW(rot2, 1);
 			return new Point((int)( (h0.Im - loc.Im) / Rd(h0, loc) * k) + pictureBox1.Width  / 2,
 			                 (int)(-(h0.Jm - loc.Jm) / Rd(h0, loc) * k) + pictureBox1.Height / 2);
