@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace растеризатор
 {
@@ -17,28 +10,28 @@ namespace растеризатор
         public double Jm;
         public double Km;
 
-        public Quaternion(Quaternion c)
+        public Quaternion(Quaternion c) // пересоздание
         {
             this.Re = c.Re;
             this.Im = c.Im;
             this.Jm = c.Jm;
             this.Km = c.Km;
         }
-        public Quaternion(double Re, double Im, double Jm, double Km)
+        public Quaternion(double Re, double Im, double Jm, double Km) // кватернион
         {
             this.Re = Re;
             this.Im = Im;
             this.Jm = Jm;
             this.Km = Km;
         }
-        public Quaternion(double Re)
+        public Quaternion(double Re) // действительное число
         {
             this.Re = Re;
             this.Im = 0;
             this.Jm = 0;
             this.Km = 0;
         }
-        public Quaternion(double x, double y, double z)
+        public Quaternion(double x, double y, double z) // трёхмерный вектор
         {
             this.Re = 0;
             this.Im = x;
@@ -46,44 +39,44 @@ namespace растеризатор
             this.Km = z;
         }
 
-        public double Abs() // |z| модуль (абсолютное значение)
+        public double Abs() // |h| модуль (абсолютное значение)
         {
             return Math.Sqrt(Re * Re + Im * Im + Jm * Jm + Km * Km);
         }
-        public static double Abs(double a) // |z| модуль (абсолютное значение)
+        public static double Abs(double a) // |h| модуль (абсолютное значение)
         {
             return Math.Abs(a);
         }
-        public static double Abs(Quaternion a) // |z| модуль (абсолютное значение)
+        public static double Abs(Quaternion a) // |h| модуль (абсолютное значение)
         {
             return Math.Sqrt(a.Re * a.Re + a.Im * a.Im + a.Jm * a.Jm + a.Km * a.Km);
         }
 
-        public Quaternion Sign() // sign(z) направление
+        public Quaternion Sign() // sgn() знак (направление)
         {
             if (Re == 0 && Im == 0 && Jm == 0 && Km == 0) return new Quaternion(1);
             else return new Quaternion(Re, Im, Jm, Km).Div(new Quaternion(Re, Im, Jm, Km).Abs());
         }
-        public static double Sign(double a) // sign(z) направление
+        public static double Sign(double a) // sgn() знак (направление)
         {
             if (a == 0) return 1;
             else return Math.Sign(a);
         }
-        public static Quaternion Sign(Quaternion a) // sign(z) направление
+        public static Quaternion Sign(Quaternion a) // sgn() знак (направление)
         {
             if (a.Re == 0 && a.Im == 0 && a.Jm == 0 && a.Km == 0) return new Quaternion(1);
             else return a.Div(a.Abs());
         }
 
-        public Quaternion Conj() // conj(z) комплексносопрежённое (Re(z) - Im(z))
+        public Quaternion Conj() // conj() сопрежённое (Re() - Im())
         {
             return new Quaternion(Re, -Im, -Jm, -Km);
         }
-        public static Quaternion Conj(double a)  // conj(z) комплексносопрежённое (Re(z) - Im(z))
+        public static Quaternion Conj(double a)  // conj() сопрежённое (Re() - Im())
         {
             return new Quaternion(a);
         }
-        public static Quaternion Conj(Quaternion a)  // conj(z) комплексносопрежённое (Re(z) - Im(z))
+        public static Quaternion Conj(Quaternion a)  // conj() сопрежённое (Re() - Im())
         {
             return new Quaternion(a.Re, -a.Im, -a.Jm, -a.Km);
         }
@@ -195,78 +188,66 @@ namespace растеризатор
             return a.Mul(b.Conj()).Div(b.Abs() * b.Abs());
         }
 
-        public Quaternion Rotate(Quaternion axis, double angle)
+        public Quaternion Rotate(Quaternion axis, double angle) // трёхмерный поворот
         {
             Quaternion h = new Quaternion(Re, Im, Jm, Km);
-            Quaternion q = new Quaternion(Math.Cos(angle / 2 * axis.Abs()),
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Im,
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Jm,
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Km);
+            Quaternion q = Exp(angle / 2, axis);
             return q.Mul(h).Mul(q.Conj());
         }
-        public static Quaternion Rotate(Quaternion h, Quaternion axis, double angle)
+        public static Quaternion Rotate(Quaternion h, Quaternion axis, double angle) // трёхмерный поворот
         {
-            Quaternion q = new Quaternion(Math.Cos(angle / 2 * axis.Abs()),
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Im, 
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Jm, 
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Km);
+            Quaternion q = Exp(angle / 2, axis);
             return q.Mul(h).Mul(q.Conj());
         }
         
-        public Quaternion RotateW(Quaternion axis, double angle)
+        public Quaternion RotateW(Quaternion axis, double angle) // четырёхмерный поворот
         {
             Quaternion h = new Quaternion(Re, Im, Jm, Km);
-            Quaternion q = new Quaternion(Math.Cos(angle / 2 * axis.Abs()),
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Im,
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Jm,
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Km);
+            Quaternion q = Exp(angle / 2, axis);
             return q.Mul(h).Mul(q);
         }
-        public static Quaternion RotateW(Quaternion h, Quaternion axis, double angle)
+        public static Quaternion RotateW(Quaternion h, Quaternion axis, double angle) // четырёхмерный поворот
         {
-            Quaternion q = new Quaternion(Math.Cos(angle / 2 * axis.Abs()),
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Im, 
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Jm, 
-                                          Math.Sin(angle / 2 * axis.Abs()) * axis.Sign().Km);
+            Quaternion q = Exp(angle / 2, axis);
             return q.Mul(h).Mul(q);
         }
 
-        public double Arg() // угол направления числа
+        public double Arg() // arg() аргумент кватерниона
         {
         	return Math.Acos(Sign().Re);
         }
-        public static double Arg(double a) // угол направления числа
+        public static double Arg(double a) // arg() аргумент кватерниона
         {
             return Math.Acos(Sign(a));
         }
-        public static double Arg(Quaternion a) // угол направления числа
+        public static double Arg(Quaternion a) // arg() аргумент кватерниона
         {
             return Math.Acos(Sign(a).Re);
         }
 
-        public Quaternion Exp() // числовое направление угла
+        public Quaternion Exp() // exp() экспонента
         {
             Quaternion v = new Quaternion(Im, Jm, Km);
             return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(Re)); 
         }
-        public Quaternion Exp(double k) // числовое направление угла
+        public Quaternion Exp(double k) // exp() экспонента
         {
             Quaternion h = new Quaternion(Re, Im, Jm, Km);
             Quaternion v = new Quaternion(h.Mul(k).Im, h.Mul(k).Jm, h.Mul(k).Km);
             return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(h.Mul(k).Re));
         }
-        public Quaternion Exp(Quaternion q) // числовое направление угла
+        public Quaternion Exp(Quaternion q) // exp() экспонента
         {
         	Quaternion h = new Quaternion(Re, Im, Jm, Km);
             Quaternion v = new Quaternion(h.Mul(q).Im, h.Mul(q).Jm, h.Mul(q).Km);
             return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(h.Mul(q).Re));
         }
-        public static Quaternion Exp(double h, Quaternion q) // числовое направление угла
+        public static Quaternion Exp(double h, Quaternion q) // exp() экспонента
         {
             Quaternion v = new Quaternion(q.Mul(h).Im, q.Mul(h).Jm, q.Mul(h).Km);
             return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(q.Mul(h).Re));
         }
-        public static Quaternion Exp(Quaternion h, Quaternion q) // числовое направление угла
+        public static Quaternion Exp(Quaternion h, Quaternion q) // exp() экспонента
         {
             Quaternion v = new Quaternion(h.Mul(q).Im, h.Mul(q).Jm, h.Mul(q).Km);
             return v.Sign().Mul(Math.Sin(v.Abs())).Sum(Math.Cos(v.Abs())).Mul(Math.Exp(h.Mul(q).Re));
@@ -395,53 +376,61 @@ namespace растеризатор
         {
             return Div(Ln(b), Ln(a));
         }
-
-        //public Complex Sin() // sin() синус
-        //{
-        //    Complex a = new Complex(Re, Im);
-        //    return Div(Sub(Pow(Math.E, Mul(a, new Complex(0, 1))), Pow(Math.E, Mul(a, new Complex(0, -1)))), new Complex(0, 2));
-        //}
-        //public static Complex Sin(double a) // sin() синус
-        //{
-        //    return new Complex(Math.Sin(a));
-        //}
-        //public static Complex Sin(Complex a) // sin() синус
-        //{
-        //    return Div(Sub(Pow(Math.E, Mul(a, new Complex(0, 1))), Pow(Math.E, Mul(a, new Complex(0, -1)))), new Complex(0, 2));
-        //}
-
-        //public Complex Cos() // cos() косинус
-        //{
-        //    Complex a = new Complex(Re, Im);
-        //    return Div(Sum(Pow(Math.E, Mul(a, new Complex(0, 1))), Pow(Math.E, Mul(a, new Complex(0, -1)))), 2);
-        //}
-        //public static Complex Cos(double a) // cos() косинус
-        //{
-        //    return new Complex(Math.Cos(a));
-        //}
-        //public static Complex Cos(Complex a) // cos() косинус
-        //{
-        //    return Div(Sum(Pow(Math.E, Mul(a, new Complex(0, 1))), Pow(Math.E, Mul(a, new Complex(0, -1)))), 2);
-        //}
-
-        public Quaternion Cosh()
+        
+        public Quaternion Cosh() // ch() гиперболический косинус
         {
             Quaternion h = new Quaternion(Re, Im, Jm, Km);
             return h.Exp().Sum(h.Exp(-1)).Div(2);
         }
-        public static Quaternion Cosh(Quaternion h)
+        public static Quaternion Cosh(double h) // ch() гиперболический косинус
+        {
+            return new Quaternion(Math.Cosh(h));
+        }
+        public static Quaternion Cosh(Quaternion h) // ch() гиперболический косинус
         {
             return h.Exp().Sum(h.Exp(-1)).Div(2);
         }
 
-        public Quaternion Sinh()
+        public Quaternion Sinh() // sh() гиперболический синус
         {
             Quaternion h = new Quaternion(Re, Im, Jm, Km);
             return h.Exp().Sub(h.Exp(-1)).Div(2);
         }
-        public static Quaternion Sinh(Quaternion h)
+        public static Quaternion Sinh(double h) // sh() гиперболический синус
+        {
+            return new Quaternion(Math.Sinh(h));
+        }
+        public static Quaternion Sinh(Quaternion h) // sh() гиперболический синус
         {
             return h.Exp().Sub(h.Exp(-1)).Div(2);
+        }
+        
+        public Quaternion Cos() // cos() косинус
+        {
+            Quaternion a = new Quaternion(Re, Im, Jm, Km);
+            return Cosh(a.Mul(new Quaternion(Im, Jm, Km).Sign()));
+        }
+        public static Quaternion Cos(double a) // cos() косинус
+        {
+            return new Quaternion(Math.Cos(a));
+        }
+        public static Quaternion Cos(Quaternion a) // cos() косинус
+        {
+        	return Cosh(a.Mul(new Quaternion(a.Im, a.Jm, a.Km).Sign()));
+        }
+        
+        public Quaternion Sin() // sin() синус
+        {
+            Quaternion a = new Quaternion(Re, Im, Jm, Km);
+            return Sinh(a.Mul(new Quaternion(Im, Jm, Km).Sign())).Div(new Quaternion(Im, Jm, Km).Sign());
+        }
+        public static Quaternion Sin(double a) // sin() синус
+        {
+            return new Quaternion(Math.Sin(a));
+        }
+        public static Quaternion Sin(Quaternion a) // sin() синус
+        {
+        	return Sinh(a.Mul(new Quaternion(a.Im, a.Jm, a.Km).Sign())).Div(new Quaternion(a.Im, a.Jm, a.Km).Sign());
         }
     }
 }

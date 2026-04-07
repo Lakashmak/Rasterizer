@@ -54,6 +54,7 @@ namespace растеризатор
 			this.pictureBox1.Size = new System.Drawing.Size(585, 480);
 			this.pictureBox1.TabIndex = 0;
 			this.pictureBox1.TabStop = false;
+			this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PictureBox1MouseMove);
 			// 
 			// timer1
 			// 
@@ -81,6 +82,7 @@ namespace растеризатор
 			this.SizeChanged += new System.EventHandler(this.MainFormSizeChanged);
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainFormKeyDown);
 			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainFormKeyUp);
+			this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainFormMouseMove);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
