@@ -11,45 +11,50 @@ namespace растеризатор
     public class Face
     {
         public bool type;
-        public Quaternion h1;
-        public Quaternion h2;
-        public List<Quaternion> points;
+        public int h1;
+        public int h2;
+        public int id;
+        public List<int> points;
         public Pen color;
 
-        public Face(Quaternion h1, Quaternion h2)
+        public Face(int id, int h1, int h2)
         {
+        	this.id = id;
         	type = true;
         	this.h1 = h1;
         	this.h2 = h2;
         	color = new Pen(Color.Black);
-        	this.points = new List<Quaternion>();
+        	this.points = new List<int>();
         }
         
-        public Face(Quaternion h1, Quaternion h2, Color cl)
+        public Face(int id, int h1, int h2, Color cl)
         {
+        	this.id = id;
         	type = true;
         	this.h1 = h1;
         	this.h2 = h2;
         	color = new Pen(cl);
-        	this.points = new List<Quaternion>();
+        	this.points = new List<int>();
         }
         
-        public Face(List<Quaternion> points)
+        public Face(int id, List<int> points)
         {
+        	this.id = id;
         	type = false;
         	this.points = points;
         	color = new Pen(Color.Gray);
-        	this.h1 = new Quaternion(0);
-        	this.h2 = new Quaternion(0);
+        	this.h1 = -1;
+        	this.h2 = -1;
         }
         
-        public Face(List<Quaternion> points, Color cl)
+        public Face(int id, List<int> points, Color cl)
         {
+        	this.id = id;
         	type = false;
         	this.points = points;
         	color = new Pen(cl);
-        	this.h1 = new Quaternion(0);
-        	this.h2 = new Quaternion(0);
+        	this.h1 = -1;
+        	this.h2 = -1;
         }
     }
 }
