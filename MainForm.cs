@@ -14,11 +14,11 @@ namespace растеризатор
 	{
 		Graphics gr;
 		Bitmap bitmap;
-		Quaternion loc = new Quaternion(0, 10, 0, 5); // координаты камеры
+		Quaternion loc = new Quaternion(0, 0, 0, -5); // координаты камеры
 		Quaternion vel = new Quaternion(0); // скрость камеры
 		Quaternion rot = new Quaternion(0); // поворот камеры
-		double a; // радиус поля зрения
-		double k; // масштаб
+		double k; // размер поля зрения
+		double a; // обратный эффект рыбьего глаза
 		int t = 0;
 		Quaternion rot1 = new Quaternion(1);
 		Quaternion rot2 = new Quaternion(1);
@@ -41,23 +41,28 @@ namespace растеризатор
 			timer1.Start();
 			
 			
-			Figures.Add(new Figure(Figures.Count, "Tesseract", new Quaternion(0, 0, 0)));
-			Figures.Add(new Figure(Figures.Count, "Hexadecahoron", new Quaternion(-5, 0, 0)));
+			Figures.Add(new Figure(Figures.Count, "Tetrahedron", new Quaternion(-10, 0, 0)));
+			Figures.Add(new Figure(Figures.Count, "Octahedron", new Quaternion(-5, 0, 0)));
+			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(0, 0, 0)));
+			Figures.Add(new Figure(Figures.Count, "Icosahedron", new Quaternion(5, 0, 0)));
 			
-			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(9, -1, -2)));
-			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(9, -1, 0)));
-			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(9, 1, -2)));
-			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(9, 1, 0)));
-			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(11, -1, -2)));
-			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(11, -1, 0)));
-			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(11, 1, -2)));
-			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(11, 1, 0)));
+			Figures.Add(new Figure(Figures.Count, "Stellated octahedron", new Quaternion(-10, 5, 0)));
+			Figures.Add(new Figure(Figures.Count, "Large icosahedron", new Quaternion(-5, 5, 0)));
 			
-			Figures.Add(new Figure(Figures.Count, "Tetrahedron", new Quaternion(0, 0, 5)));
-			Figures.Add(new Figure(Figures.Count, "Octahedron", new Quaternion(5, 0, 5)));
-			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(10, 0, 5)));
+			Figures.Add(new Figure(Figures.Count, "Pentahoron", new Quaternion(-10, 0, 5)));
+			Figures.Add(new Figure(Figures.Count, "Hexadecahoron", new Quaternion(-5, 0, 5)));
+			Figures.Add(new Figure(Figures.Count, "Tesseract", new Quaternion(0, 0, 5)));
 			
-			Figures.Add(new Figure(Figures.Count, "Stellated octahedron", new Quaternion(0, 5, 5)));
+			
+			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(-1, -1, -21)));
+			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(-1, -1, -19)));
+			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(-1, 1, -21)));
+			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(-1, 1, -19)));
+			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(1, -1, -21)));
+			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(1, -1, -19)));
+			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(1, 1, -21)));
+			Figures.Add(new Figure(Figures.Count, "Cube", new Quaternion(1, 1, -19)));
+			
 		}
 		
 		private void Form1_MouseWhel(object sender, MouseEventArgs e)
@@ -80,6 +85,8 @@ namespace растеризатор
 				rot.Im += (lostE.X - e.X) * 0.0025;
 				rot.Jm += (lostE.Y - e.Y) * 0.0025;
 				//text = (lostE.X) + " " + (lostE.Y) + "\n" + (e.X) + " " + (e.Y) + "\n" + (lostE.X - e.X) + " " + (lostE.Y - e.Y);
+				
+				if(e.Button == MouseButtons.Left) Figures[id].location = Figures[id].location.Sub(loc).Rotate(new Quaternion(0, -(lostE.X - e.X) * 0.0025, 0), 1).Rotate(new Quaternion((lostE.Y - e.Y) * 0.0025, 0, 0), 1).Sum(loc);
 			}
 			if (cursorVisible) Cursor.Position = new Point(this.Location.X + 8 + pictureBox1.Location.X + pictureBox1.Width / 2, this.Location.Y + 31 + pictureBox1.Location.Y + pictureBox1.Height / 2);
 		}
@@ -156,10 +163,25 @@ namespace растеризатор
 				loc.Re += vel.Re / 25;
 			}
 			
-			for (int f = 0; f < Figures.Count; f++) if(Figures[f].location.Sub(loc).Abs() <= Figures[id].location.Sub(loc).Abs()) id = f;
-			text = "                  " + id;
+			//for (int f = 0; f < Figures.Count; f++) if(Figures[f].location.Sub(loc).Abs() <= Figures[id].location.Sub(loc).Abs()) id = f;
+			
+			text = "             " + Figures[id].name + " " + id;
+			{
+				int i = 0;
+				Quaternion l = new Quaternion(0);
+				foreach (Quaternion p in Figures[id].points) { l = l.Sum(p); i++;}
+				l = l.Div(i);
+				text += "\n\ndeltaloc: (" + l.Im + ", " + l.Jm + ", " + l.Km + ", " + l.Re + ")\n";
+				foreach (Face f in Figures[id].faces) if(f.type) text += f.h1 + " " + f.h2 + ": " + Figures[id].points[f.h1].Sub(Figures[id].points[f.h2]).Abs() + "\n";
+			}
 			
 			Draw();
+			
+			for (int f = 0; f < Figures.Count; f++)
+				if(Figures[f].location.Sub(loc).Sign().Sub(new Quaternion(0, 0, 0, 1).Rotate(new Quaternion(-rot.Jm, 0, 0), 1).Rotate(new Quaternion(0, -rot.Im, 0), 1).Sign()).Abs() <=
+				   Figures[id].location.Sub(loc).Sign().Sub(new Quaternion(0, 0, 0, 1).Rotate(new Quaternion(-rot.Jm, 0, 0), 1).Rotate(new Quaternion(0, -rot.Im, 0), 1).Sign()).Abs()) id = f;
+			
+			//gr.FillEllipse(new Pen(Color.Black).Brush, new RectangleF(draw_calculation(new Quaternion(0, 0, 0, 1).Rotate(new Quaternion(-rot.Jm, 0, 0), 1).Rotate(new Quaternion(0, -rot.Im, 0), 1).Sign().Sum(loc)),new SizeF(5,5)));
 			
 			//for (int i = 0; i < Figures[0].points.Count; i++) Figures[0].points[i] = Figures[0].points[i].Rotate(new Quaternion(Math.Sin(0.01 * t), Math.Sin(0.01 * t + 2 * Math.PI / 3), Math.Sin(0.01 * t + 4 * Math.PI / 3)), 0.01 * 0);
 			
@@ -238,18 +260,12 @@ namespace растеризатор
 					}
 					foreach (Face f in l2)
 					{
-						double ogr = 0.6;
+						double ogr = 0;
 						double l = 1;
 						if(f.type) for (double d = 0; d < l; d++)
-							if(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul(d/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Km - loc.Km > ogr
-							   //&& Math.Abs(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul(d/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Re - loc.Re) < ogr
-							   || Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d-1)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul((d+1)/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Km - loc.Km > ogr
-							   //&& Math.Abs(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d-1)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul((d+1)/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Re - loc.Re) < ogr
-							   //|| Math.Abs(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul(d/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Km - loc.Km) > ogr
-							   //&& Math.Abs(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul(d/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Re - loc.Re) > ogr
-							   //|| Math.Abs(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d-1)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul((d+1)/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Km - loc.Km) > ogr
-							   //&& Math.Abs(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d-1)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul((d+1)/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Re - loc.Re) > ogr
-							  ) gr.DrawLine(f.color, draw_calculation(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul(d/l))), draw_calculation(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d-1)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul((d+1)/l))));
+							if(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul(d/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Km - loc.Km > ogr ||
+							   Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d-1)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul((d+1)/l)).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Km - loc.Km > ogr)
+								if(f.id == id) gr.DrawLine(f.color, draw_calculation(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul(d/l))), draw_calculation(Figures[f.id].points[f.h1].Sum(Figures[f.id].location).Mul((l-d-1)/l).Sum(Figures[f.id].points[f.h2].Sum(Figures[f.id].location).Mul((d+1)/l))));
 						if(!f.type)
 						{
 							bool pr = false;
@@ -257,11 +273,7 @@ namespace растеризатор
 							List<Point> po = new List<Point>();
 							foreach (int el in list)
 							{
-								if (Figures[f.id].points[el].Sum(Figures[f.id].location).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Km - loc.Km > ogr
-								    //&& Math.Abs(Figures[f.id].points[el].Sum(Figures[f.id].location).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Re - loc.Re) < ogr
-								    //|| Math.Abs(Figures[f.id].points[el].Sum(Figures[f.id].location).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Km - loc.Km) > ogr
-								    //&& Math.Abs(Figures[f.id].points[el].Sum(Figures[f.id].location).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Re - loc.Re) > ogr
-								   ) pr = true;
+								if (Figures[f.id].points[el].Sum(Figures[f.id].location).Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc).Km - loc.Km > ogr) pr = true;
 								po.Add(draw_calculation(Figures[f.id].points[el].Sum(Figures[f.id].location)));
 							}
 							if(pr) gr.FillPolygon(f.color.Brush, po.ToArray());
@@ -269,6 +281,8 @@ namespace растеризатор
 					}
 				}
 			} catch { }
+			gr.DrawLine(new Pen(Color.White), pictureBox1.Width/2 - 5, pictureBox1.Height/2, pictureBox1.Width/2 + 5, pictureBox1.Height/2);
+			gr.DrawLine(new Pen(Color.White), pictureBox1.Width/2, pictureBox1.Height/2 - 5, pictureBox1.Width/2, pictureBox1.Height/2 + 5);
 			pictureBox1.Image = bitmap;
 		}
 		
@@ -283,12 +297,8 @@ namespace растеризатор
 		
 		double Rd(Quaternion h1, Quaternion h2)
 		{
-			if(Math.Abs(h1.Re - h2.Re) < 0.2 || true)
-			{
-				if (Math.Sign(h1.Km - h2.Km) == 1) return Math.Sqrt((h1.Im - h2.Im) * (h1.Im - h2.Im) + (h1.Jm - h2.Jm) * (h1.Jm - h2.Jm) + Math.Sign(h1.Km - h2.Km) * (h1.Km - h2.Km) * (h1.Km - h2.Km) * a * a + (h1.Re - h2.Re) * (h1.Re - h2.Re) * a * a);
-				else return Math.Sqrt((h1.Im - h2.Im) * (h1.Im - h2.Im) + (h1.Jm - h2.Jm) * (h1.Jm - h2.Jm) + (h1.Re - h2.Re) * (h1.Re - h2.Re) * a * a);
-			}
-			else return Math.Sqrt((h1.Im - h2.Im) * (h1.Im - h2.Im) + (h1.Jm - h2.Jm) * (h1.Jm - h2.Jm) + (h1.Km - h2.Km) * (h1.Km - h2.Km) * a * a + (h1.Re - h2.Re) * (h1.Re - h2.Re) * a * a);
+			if (Math.Sign(h1.Km - h2.Km) == 1) return Math.Sqrt((h1.Im - h2.Im) * (h1.Im - h2.Im) + (h1.Jm - h2.Jm) * (h1.Jm - h2.Jm) + Math.Sign(h1.Km - h2.Km) * (h1.Km - h2.Km) * (h1.Km - h2.Km) * a * a + (h1.Re - h2.Re) * (h1.Re - h2.Re) * a * a);
+			else return Math.Sqrt((h1.Im - h2.Im) * (h1.Im - h2.Im) + (h1.Jm - h2.Jm) * (h1.Jm - h2.Jm) + (h1.Re - h2.Re) * (h1.Re - h2.Re) * a * a);
 		}
 	}
 }
