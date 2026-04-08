@@ -86,10 +86,8 @@ namespace растеризатор
 				}
 				int alp = 191;
 				List<int> p;
-				p = new List<int>(); p.Add(0); p.Add(1); p.Add(2); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
-				p = new List<int>(); p.Add(0); p.Add(1); p.Add(3); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
-				p = new List<int>(); p.Add(0); p.Add(2); p.Add(3); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
-				p = new List<int>(); p.Add(1); p.Add(2); p.Add(3); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
+				for (int i = 0; i < points.Count; i++) for (int j = i+1; j < points.Count; j++) for (int k = j+1; k < points.Count; k++)
+				{ p = new List<int>(); p.Add(i); p.Add(j); p.Add(k); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256)))); }
 			} else
 			if(type == "Octahedron")
 			{
@@ -107,7 +105,7 @@ namespace растеризатор
 				}
 				int alp = 191;
 				List<int> p;
-				for (int i = 0; i < 6; i++) for (int j = i+1; j < 6; j++) for (int k = j+1; k < 6; k++)
+				for (int i = 0; i < points.Count; i++) for (int j = i+1; j < points.Count; j++) for (int k = j+1; k < points.Count; k++)
 				if(i != j && i != 5-j && i != k && i != 5-k && k != j && k != 5-j)
 				{ p = new List<int>(); p.Add(i); p.Add(j); p.Add(k); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256)))); }
 				//p = new List<int>(); p.Add(0); p.Add(1); p.Add(2); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
@@ -118,6 +116,86 @@ namespace растеризатор
 				//p = new List<int>(); p.Add(1); p.Add(3); p.Add(5); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
 				//p = new List<int>(); p.Add(2); p.Add(4); p.Add(5); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
 				//p = new List<int>(); p.Add(3); p.Add(4); p.Add(5); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
+			} else
+			if(type == "Icosahedron")
+			{
+				points.Add(new Quaternion(-r/2.0, -(Math.Sqrt(5)-1.0)*r/4.0, 0));
+				points.Add(new Quaternion(-r/2.0, (Math.Sqrt(5)-1.0)*r/4.0, 0));
+				points.Add(new Quaternion(-(Math.Sqrt(5)-1.0)*r/4.0, 0, -r/2.0));
+				points.Add(new Quaternion(-(Math.Sqrt(5)-1.0)*r/4.0, 0, r/2.0));
+				points.Add(new Quaternion(0, -r/2.0, -(Math.Sqrt(5)-1.0)*r/4.0));
+				points.Add(new Quaternion(0, -r/2.0, (Math.Sqrt(5)-1.0)*r/4.0));
+				points.Add(new Quaternion(0, r/2.0, -(Math.Sqrt(5)-1.0)*r/4.0));
+				points.Add(new Quaternion(0, r/2.0, (Math.Sqrt(5)-1.0)*r/4.0));
+				points.Add(new Quaternion((Math.Sqrt(5)-1.0)*r/4.0, 0, -r/2.0));
+				points.Add(new Quaternion((Math.Sqrt(5)-1.0)*r/4.0, 0, r/2.0));
+				points.Add(new Quaternion(r/2.0, -(Math.Sqrt(5)-1.0)*r/4.0, 0));
+				points.Add(new Quaternion(r/2.0, (Math.Sqrt(5)-1.0)*r/4.0, 0));
+				//points.Add(new Quaternion(-(Math.Sqrt(5)-1.0)*r/4.0, -r/2.0, 0));
+				//points.Add(new Quaternion((Math.Sqrt(5)-1.0)*r/4.0, -r/2.0, 0));
+				//points.Add(new Quaternion(-r/2.0, 0, -(Math.Sqrt(5)-1.0)*r/4.0));
+				//points.Add(new Quaternion(r/2.0, 0, -(Math.Sqrt(5)-1.0)*r/4.0));
+				//points.Add(new Quaternion(0, -(Math.Sqrt(5)-1.0)*r/4.0, -r/2.0));
+				//points.Add(new Quaternion(0, (Math.Sqrt(5)-1.0)*r/4.0, -r/2.0));
+				//points.Add(new Quaternion(0, -(Math.Sqrt(5)-1.0)*r/4.0, r/2.0));
+				//points.Add(new Quaternion(0, (Math.Sqrt(5)-1.0)*r/4.0, r/2.0));
+				//points.Add(new Quaternion(-r/2.0, 0, (Math.Sqrt(5)-1.0)*r/4.0));
+				//points.Add(new Quaternion(r/2.0, 0, (Math.Sqrt(5)-1.0)*r/4.0));
+				//points.Add(new Quaternion(-(Math.Sqrt(5)-1.0)*r/4.0, r/2.0, 0));
+				//points.Add(new Quaternion((Math.Sqrt(5)-1.0)*r/4.0, r/2.0, 0));
+				for (int h1 = 0; h1 < points.Count; h1++) for (int h2 = 0; h2 < points.Count; h2++)
+				{
+					bool i = true;
+					foreach (Face l in faces) if(l.h1 == h2 && l.h2 == h1) i = false;
+					if(i && Math.Abs(points[h1].Sub(points[h2]).Abs() - Math.Sqrt(6.0-2.0*Math.Sqrt(5.0))*r/2.0) < 0.001) faces.Add(new Face(id, h1, h2));
+				}
+				int alp = 191;
+				List<int> p;
+				for (int i = 0; i < points.Count; i++) for (int j = i+1; j < points.Count; j++) for (int k = j+1; k < points.Count; k++)
+					if(Math.Abs(points[i].Sub(points[j]).Abs() - Math.Sqrt(6.0-2.0*Math.Sqrt(5.0))*r/2.0) < 0.001 && 
+					   Math.Abs(points[j].Sub(points[k]).Abs() - Math.Sqrt(6.0-2.0*Math.Sqrt(5.0))*r/2.0) < 0.001 && 
+					   Math.Abs(points[k].Sub(points[i]).Abs() - Math.Sqrt(6.0-2.0*Math.Sqrt(5.0))*r/2.0) < 0.001)
+				{ p = new List<int>(); p.Add(i); p.Add(j); p.Add(k); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256)))); }
+			} else
+			if(type == "Large icosahedron")
+			{
+				points.Add(new Quaternion(-r/2.0, -(Math.Sqrt(5)-1.0)*r/4.0, 0));
+				points.Add(new Quaternion(-r/2.0, (Math.Sqrt(5)-1.0)*r/4.0, 0));
+				points.Add(new Quaternion(-(Math.Sqrt(5)-1.0)*r/4.0, 0, -r/2.0));
+				points.Add(new Quaternion(-(Math.Sqrt(5)-1.0)*r/4.0, 0, r/2.0));
+				points.Add(new Quaternion(0, -r/2.0, -(Math.Sqrt(5)-1.0)*r/4.0));
+				points.Add(new Quaternion(0, -r/2.0, (Math.Sqrt(5)-1.0)*r/4.0));
+				points.Add(new Quaternion(0, r/2.0, -(Math.Sqrt(5)-1.0)*r/4.0));
+				points.Add(new Quaternion(0, r/2.0, (Math.Sqrt(5)-1.0)*r/4.0));
+				points.Add(new Quaternion((Math.Sqrt(5)-1.0)*r/4.0, 0, -r/2.0));
+				points.Add(new Quaternion((Math.Sqrt(5)-1.0)*r/4.0, 0, r/2.0));
+				points.Add(new Quaternion(r/2.0, -(Math.Sqrt(5)-1.0)*r/4.0, 0));
+				points.Add(new Quaternion(r/2.0, (Math.Sqrt(5)-1.0)*r/4.0, 0));
+				//points.Add(new Quaternion(-(Math.Sqrt(5)-1.0)*r/4.0, -r/2.0, 0));
+				//points.Add(new Quaternion((Math.Sqrt(5)-1.0)*r/4.0, -r/2.0, 0));
+				//points.Add(new Quaternion(-r/2.0, 0, -(Math.Sqrt(5)-1.0)*r/4.0));
+				//points.Add(new Quaternion(r/2.0, 0, -(Math.Sqrt(5)-1.0)*r/4.0));
+				//points.Add(new Quaternion(0, -(Math.Sqrt(5)-1.0)*r/4.0, -r/2.0));
+				//points.Add(new Quaternion(0, (Math.Sqrt(5)-1.0)*r/4.0, -r/2.0));
+				//points.Add(new Quaternion(0, -(Math.Sqrt(5)-1.0)*r/4.0, r/2.0));
+				//points.Add(new Quaternion(0, (Math.Sqrt(5)-1.0)*r/4.0, r/2.0));
+				//points.Add(new Quaternion(-r/2.0, 0, (Math.Sqrt(5)-1.0)*r/4.0));
+				//points.Add(new Quaternion(r/2.0, 0, (Math.Sqrt(5)-1.0)*r/4.0));
+				//points.Add(new Quaternion(-(Math.Sqrt(5)-1.0)*r/4.0, r/2.0, 0));
+				//points.Add(new Quaternion((Math.Sqrt(5)-1.0)*r/4.0, r/2.0, 0));
+				for (int h1 = 0; h1 < points.Count; h1++) for (int h2 = 0; h2 < points.Count; h2++)
+				{
+					bool i = true;
+					foreach (Face l in faces) if(l.h1 == h2 && l.h2 == h1) i = false;
+					if(i && Math.Abs(points[h1].Sub(points[h2]).Abs() - r) < 0.001) faces.Add(new Face(id, h1, h2));
+				}
+				int alp = 191;
+				List<int> p;
+				for (int i = 0; i < points.Count; i++) for (int j = i+1; j < points.Count; j++) for (int k = j+1; k < points.Count; k++)
+					if(Math.Abs(points[i].Sub(points[j]).Abs() - r) < 0.001 && 
+					   Math.Abs(points[j].Sub(points[k]).Abs() - r) < 0.001 && 
+					   Math.Abs(points[k].Sub(points[i]).Abs() - r) < 0.001)
+				{ p = new List<int>(); p.Add(i); p.Add(j); p.Add(k); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256)))); }
 			} else
 			if(type == "Tesseract")
 			{
@@ -155,6 +233,24 @@ namespace растеризатор
 				p = new List<int>(); p.Add(5); p.Add(7); p.Add(15); p.Add(13); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
 				p = new List<int>(); p.Add(6); p.Add(7); p.Add(15); p.Add(14); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256))));
 			} else
+				if(type == "Pentahoron")
+			{
+				points.Add(new Quaternion(-Math.Sqrt(1.0/5.0)*r/2, -r/2, -r/2, -r/2));
+				points.Add(new Quaternion(-Math.Sqrt(1.0/5.0)*r/2, -r/2,  r/2,  r/2));
+				points.Add(new Quaternion(-Math.Sqrt(1.0/5.0)*r/2,  r/2, -r/2,  r/2));
+				points.Add(new Quaternion(-Math.Sqrt(1.0/5.0)*r/2,  r/2,  r/2, -r/2));
+				points.Add(new Quaternion(Math.Sqrt(16.0/5.0)*r/2, 0, 0, 0));
+				for (int h1 = 0; h1 < points.Count; h1++) for (int h2 = 0; h2 < points.Count; h2++)
+				{
+					bool i = true;
+					foreach (Face l in faces) if(l.h1 == h2 && l.h2 == h1) i = false;
+					if(i && points[h1].Sub(points[h2]).Abs() == Math.Sqrt(2)*r) faces.Add(new Face(id, h1, h2));
+				}
+				int alp = 63;
+				List<int> p;
+				for (int i = 0; i < points.Count; i++) for (int j = i+1; j < points.Count; j++) for (int k = j+1; k < points.Count; k++)
+				{ p = new List<int>(); p.Add(i); p.Add(j); p.Add(k); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256)))); }
+			} else
 			if(type == "Hexadecahoron")
 			{
 				points.Add(new Quaternion(0, 0, 0, -r/2));
@@ -173,7 +269,7 @@ namespace растеризатор
 				}
 				int alp = 63;
 				List<int> p;
-				for (int i = 0; i < 8; i++) for (int j = i+1; j < 8; j++) for (int k = j+1; k < 8; k++)
+				for (int i = 0; i < points.Count; i++) for (int j = i+1; j < points.Count; j++) for (int k = j+1; k < points.Count; k++)
 				if(i != j && i != 7-j && i != k && i != 7-k && k != j && k != 7-j)
 				{ p = new List<int>(); p.Add(i); p.Add(j); p.Add(k); faces.Add(new Face(id, p, Color.FromArgb(alp, rnd.Next(256), rnd.Next(256), rnd.Next(256)))); }
 			}
