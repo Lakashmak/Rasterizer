@@ -19,15 +19,18 @@ namespace растеризатор
 		Quaternion rot = new Quaternion(0); // поворот камеры
 		double k; // размер поля зрения
 		double a; // обратный эффект рыбьего глаза
-		int t = 0;
-		Quaternion rot1 = new Quaternion(1);
-		Quaternion rot2 = new Quaternion(1);
-		List<Figure> Figures = new List<Figure>();
-		string text = "";
-		Point lostE;
-		bool cursorVisible = false;
-		bool speed = false;
-		int id = 0;
+		int t = 0; //время в кадрах
+        //Quaternion rot1 = new Quaternion(1);
+        //Quaternion rot2 = new Quaternion(1);
+        List<Figure> Figures = new List<Figure>(); //отображаемые фигуры
+        string text = ""; //информация о фигуре
+        Point lostE; //предыдущее положение курсора
+        bool cursorVisible = false; //скрытие курсора
+        bool speed = false; //ускоренное перемещение
+        bool drag = false; //перетаскивание фигуры
+        bool approximation = false; //округление координат фигур до целых при перетаскивании
+        Quaternion IdLoc = new Quaternion(0); //координаты перетаскиваемой фигуры
+        int id = 0; //ID выделенной фигуры
 		public MainForm()
 		{
 			InitializeComponent();
@@ -76,18 +79,31 @@ namespace растеризатор
 			cursorVisible = true;
 			if (cursorVisible) Cursor.Position = new Point(this.Location.X + 8 + pictureBox1.Location.X + pictureBox1.Width / 2, this.Location.Y + 31 + pictureBox1.Location.Y + pictureBox1.Height / 2);
 			lostE = new Point(pictureBox1.Width / 2, pictureBox1.Height / 2);
-		}
+            drag = false;
+        }
 
 		void PictureBox1MouseMove(object sender, MouseEventArgs e)
 		{
 			if (cursorVisible)
 			{
-				rot.Im += (lostE.X - e.X) * 0.0025;
-				rot.Jm += (lostE.Y - e.Y) * 0.0025;
+				//if (!speed)
+				//{
+					rot.Im += (lostE.X - e.X) * 0.0025;
+					rot.Jm += (lostE.Y - e.Y) * 0.0025;
+				//}
+				//else
+				//{
+				//    rot.Km += (lostE.X - e.X) * 0.0025;
+				//    rot.Jm += (lostE.Y - e.Y) * 0.0025;
+				//}
 				//text = (lostE.X) + " " + (lostE.Y) + "\n" + (e.X) + " " + (e.Y) + "\n" + (lostE.X - e.X) + " " + (lostE.Y - e.Y);
-				
-				if(e.Button == MouseButtons.Left) Figures[id].location = Figures[id].location.Sub(loc).Rotate(new Quaternion(0, -(lostE.X - e.X) * 0.0025, 0), 1).Rotate(new Quaternion((lostE.Y - e.Y) * 0.0025, 0, 0), 1).Sum(loc);
-			}
+
+				if (e.Button == MouseButtons.Left && !drag) IdLoc = Figures[id].location;
+                if (e.Button == MouseButtons.Left) drag = true;
+                if (drag) Figures[id].location = IdLoc = IdLoc.Sub(loc).Rotate(new Quaternion(0, -(lostE.X - e.X) * 0.0025, 0), 1).Rotate(new Quaternion(-(lostE.Y - e.Y) * 0.0025, 0, 0).Rotate(new Quaternion(0, -rot.Im, 0), 1), 1).Sum(loc);
+				if (drag && approximation) Figures[id].location = new Quaternion(Convert.ToInt32(IdLoc.Re), Convert.ToInt32(IdLoc.Im), Convert.ToInt32(IdLoc.Jm), Convert.ToInt32(IdLoc.Km));
+
+            }
 			if (cursorVisible) Cursor.Position = new Point(this.Location.X + 8 + pictureBox1.Location.X + pictureBox1.Width / 2, this.Location.Y + 31 + pictureBox1.Location.Y + pictureBox1.Height / 2);
 		}
 		
@@ -117,7 +133,10 @@ namespace растеризатор
 			if (e.KeyCode == Keys.B) for (int i = 0; i < Figures[id].points.Count; i++) Figures[id].points[i] = Figures[id].points[i].RotateW(new Quaternion(0, 1, 0), 0.05);
 			if (e.KeyCode == Keys.N) for (int i = 0; i < Figures[id].points.Count; i++) Figures[id].points[i] = Figures[id].points[i].RotateW(new Quaternion(0, 0, 1), 0.05);
 			if (e.KeyCode == Keys.ControlKey) speed = true;
-		}
+            if (e.KeyCode == Keys.Menu) approximation = true;
+			//label1.Text = e.KeyCode + "";
+
+        }
 
 		private void MainFormKeyUp(object sender, KeyEventArgs e)
 		{
@@ -130,7 +149,8 @@ namespace растеризатор
 			if (e.KeyCode == Keys.R) vel.Re = 0;
 			if (e.KeyCode == Keys.F) vel.Re = 0;
 			if (e.KeyCode == Keys.ControlKey) speed = false;
-		}
+            if (e.KeyCode == Keys.Menu) approximation = false;
+        }
 
 		private void MainFormSizeChanged(object sender, EventArgs e)
 		{
@@ -154,13 +174,32 @@ namespace растеризатор
 				loc.Jm += vel.Jm / 25 * Convert.ToDouble(numericUpDown1.Value);
 				loc.Km += vel.Km / 25 * Convert.ToDouble(numericUpDown1.Value);
 				loc.Re += vel.Re / 25 * Convert.ToDouble(numericUpDown1.Value);
-			}
+                if (drag)
+                {
+
+                    IdLoc.Im += vel.Im / 25 * Convert.ToDouble(numericUpDown1.Value);
+                    IdLoc.Jm += vel.Jm / 25 * Convert.ToDouble(numericUpDown1.Value);
+                    IdLoc.Km += vel.Km / 25 * Convert.ToDouble(numericUpDown1.Value);
+                    IdLoc.Re += vel.Re / 25 * Convert.ToDouble(numericUpDown1.Value);
+					if(!approximation) Figures[id].location = IdLoc;
+					else Figures[id].location = new Quaternion(Convert.ToInt32(IdLoc.Re), Convert.ToInt32(IdLoc.Im), Convert.ToInt32(IdLoc.Jm), Convert.ToInt32(IdLoc.Km));
+                }
+            }
 			else
 			{
 				loc.Im += vel.Im / 25;
 				loc.Jm += vel.Jm / 25;
 				loc.Km += vel.Km / 25;
 				loc.Re += vel.Re / 25;
+				if(drag)
+				{
+                    IdLoc.Im += vel.Im / 25;
+                    IdLoc.Jm += vel.Jm / 25;
+                    IdLoc.Km += vel.Km / 25;
+                    IdLoc.Re += vel.Re / 25;
+                    if (!approximation) Figures[id].location = IdLoc;
+                    else Figures[id].location = new Quaternion(Convert.ToInt32(IdLoc.Re), Convert.ToInt32(IdLoc.Im), Convert.ToInt32(IdLoc.Jm), Convert.ToInt32(IdLoc.Km));
+                }
 			}
 			
 			//for (int f = 0; f < Figures.Count; f++) if(Figures[f].location.Sub(loc).Abs() <= Figures[id].location.Sub(loc).Abs()) id = f;
@@ -171,13 +210,14 @@ namespace растеризатор
 				Quaternion l = new Quaternion(0);
 				foreach (Quaternion p in Figures[id].points) { l = l.Sum(p); i++;}
 				l = l.Div(i);
-				text += "\n\ndeltaloc: (" + l.Im + ", " + l.Jm + ", " + l.Km + ", " + l.Re + ")\n";
+                text += "\n\nloc: (" + Figures[id].location.Im + ", " + Figures[id].location.Jm + ", " + Figures[id].location.Km + ", " + Figures[id].location.Re + ")\n";
+                text += "\ndeltaloc: (" + l.Im + ", " + l.Jm + ", " + l.Km + ", " + l.Re + ")\n";
 				foreach (Face f in Figures[id].faces) if(f.type) text += f.h1 + " " + f.h2 + ": " + Figures[id].points[f.h1].Sub(Figures[id].points[f.h2]).Abs() + "\n";
 			}
 			
 			Draw();
 			
-			for (int f = 0; f < Figures.Count; f++)
+			for (int f = 0; f < Figures.Count; f++) if(!drag)
 				if(Figures[f].location.Sub(loc).Sign().Sub(new Quaternion(0, 0, 0, 1).Rotate(new Quaternion(-rot.Jm, 0, 0), 1).Rotate(new Quaternion(0, -rot.Im, 0), 1).Sign()).Abs() <=
 				   Figures[id].location.Sub(loc).Sign().Sub(new Quaternion(0, 0, 0, 1).Rotate(new Quaternion(-rot.Jm, 0, 0), 1).Rotate(new Quaternion(0, -rot.Im, 0), 1).Sign()).Abs()) id = f;
 			
@@ -198,7 +238,7 @@ namespace растеризатор
 			//	}
 			//}
 			
-			label1.Text = "x: " + loc.Im + "\ny: " + loc.Jm + "\nz: " + loc.Km + "\nw: " + loc.Re + "\nглубина: " + k/a + "\nмасштаб: " + k + "\nэффект рыбьего глаза: " + 1/a + "\nвремя: " + t + "\n\n" + text;
+			label1.Text = "x: " + loc.Im + "\ny: " + loc.Jm + "\nz: " + loc.Km + "\nw: " + loc.Re + "\nφ: " + ((Math.PI - rot.Im) % (2*Math.PI) - Math.PI) + "\nθ: " + ((Math.PI + rot.Jm) % (2*Math.PI) - Math.PI) + "\nглубина: " + k/a + "\nмасштаб: " + k + "\nэффект рыбьего глаза: " + 1/a + "\nвремя: " + t + "\n\n" + text;
 			t++;
 		}
 		
@@ -209,7 +249,7 @@ namespace растеризатор
 			{
 				gr.FillEllipse(new Pen(Color.FromArgb(127, 191, 255)).Brush, (float)(pictureBox1.Width / 2 - k), (float)(pictureBox1.Height / 2 - k), (float)(2 * k), (float)(2 * k));
 
-				if (loc.Km * loc.Km + loc.Re * loc.Re >= 0)
+				if (loc.Km * loc.Km + loc.Re * loc.Re >= 0 || true)
 				{
 					//foreach (Quaternion h1 in points) foreach (Quaternion h2 in points)
 					//{
@@ -291,9 +331,10 @@ namespace растеризатор
 			Quaternion h0 = h.Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc);
 			//Quaternion h0 = h.Rotate(new Quaternion(1, 0, 0), 0.01 * t);//.RotateW(new Quaternion(0, 1, 0), 0.01 * t * 0);
 			//h0 = h0.Rotate(rot1, 1).RotateW(rot2, 1);
-			return new Point((int)( (h0.Im - loc.Im) / Rd(h0, loc) * k) + pictureBox1.Width  / 2,
-			                 (int)(-(h0.Jm - loc.Jm) / Rd(h0, loc) * k) + pictureBox1.Height / 2);
-		}
+			try { return new Point((int)((h0.Im - loc.Im) / Rd(h0, loc) * k) + pictureBox1.Width / 2,
+								 (int)(-(h0.Jm - loc.Jm) / Rd(h0, loc) * k) + pictureBox1.Height / 2); }
+            catch { return new Point(0, 0); }
+        }
 		
 		double Rd(Quaternion h1, Quaternion h2)
 		{
