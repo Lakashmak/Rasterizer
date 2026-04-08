@@ -16,15 +16,16 @@ namespace растеризатор
 		Bitmap bitmap;
 		Quaternion loc = new Quaternion(0, 0, 0, -5); // координаты камеры
 		Quaternion vel = new Quaternion(0); // скрость камеры
+		Quaternion rot = new Quaternion(0); // поворот камеры
 		double k = 1086; // масштаб
 		double a = 2.5; // глубина
 		int t = 0;
-		Quaternion rot = new Quaternion(0);
 		Quaternion rot1 = new Quaternion(1);
 		Quaternion rot2 = new Quaternion(1);
 		Figure Cube = new Figure("Cube", new Quaternion(0, 0, 0));
 		string text = "";
 		Point lostE;
+		bool cursorVisible = false;
 		public MainForm()
 		{
 			InitializeComponent();
@@ -51,54 +52,61 @@ namespace растеризатор
 		
 		private void Form1_MouseWhel(object sender, MouseEventArgs e)
         {
-			
-        }
-		
-		void MainFormMouseMove(object sender, MouseEventArgs e)
-		{
-			Double r = 1000000;
-			rot.Im += (e.X - lostE.X) / r;
-			rot.Jm += (e.Y - lostE.Y) / r;
-			lostE = e.Location;
+			if (e.Delta > 0) k *= 1.1;
+			else k /= 1.1;
 		}
-		
+		private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
+		{
+			if (!cursorVisible) Cursor.Hide();
+			cursorVisible = true;
+			if (cursorVisible) Cursor.Position = new Point(this.Location.X + 8 + pictureBox1.Location.X + pictureBox1.Width / 2, this.Location.Y + 31 + pictureBox1.Location.Y + pictureBox1.Height / 2);
+			lostE = new Point(pictureBox1.Width / 2, pictureBox1.Height / 2);
+		}
+
 		void PictureBox1MouseMove(object sender, MouseEventArgs e)
 		{
-			rot.Im += e.X - lostE.X;
-			rot.Jm += e.Y - lostE.Y;
-			lostE = e.Location;
+			if (cursorVisible)
+			{
+				rot.Im += (lostE.X - e.X) * 0.0025;
+				rot.Jm += (lostE.Y - e.Y) * 0.0025;
+				text = (lostE.X) + " " + (lostE.Y) + "\n" + (e.X) + " " + (e.Y) + "\n" + (lostE.X - e.X) + " " + (lostE.Y - e.Y);
+			}
+			if (cursorVisible) Cursor.Position = new Point(this.Location.X + 8 + pictureBox1.Location.X + pictureBox1.Width / 2, this.Location.Y + 31 + pictureBox1.Location.Y + pictureBox1.Height / 2);
 		}
 		
 		private void MainFormKeyDown(object sender, KeyEventArgs e)
 		{
-			if (e.KeyCode == Keys.D) vel.Im = 1;
-			if (e.KeyCode == Keys.A) vel.Im = -1;
+			if (e.KeyCode == Keys.Escape)
+			{
+				if (cursorVisible) Cursor.Show();
+				cursorVisible = false;
+			}
+			if (e.KeyCode == Keys.D) { vel.Km = Math.Sin(rot.Im); vel.Im = Math.Cos(rot.Im); }
+			if (e.KeyCode == Keys.A) { vel.Km = -Math.Sin(rot.Im); vel.Im = -Math.Cos(rot.Im); }
 			if (e.KeyCode == Keys.Space) vel.Jm = 1;
 			if (e.KeyCode == Keys.ShiftKey) vel.Jm = -1;
-			if (e.KeyCode == Keys.W) vel.Km = 1;
-			if (e.KeyCode == Keys.S) vel.Km = -1;
+			if (e.KeyCode == Keys.W) { vel.Km = Math.Cos(rot.Im); vel.Im = -Math.Sin(rot.Im);}
+			if (e.KeyCode == Keys.S) { vel.Km = -Math.Cos(rot.Im); vel.Im = Math.Sin(rot.Im); }
 			if (e.KeyCode == Keys.R) vel.Re = 1;
 			if (e.KeyCode == Keys.F) vel.Re = -1;
-			if (e.KeyCode == Keys.T) k *= 1.01;
-			if (e.KeyCode == Keys.G) k /= 1.01;
-			//if (e.KeyCode == Keys.T) a += 0.01;
-			//if (e.KeyCode == Keys.G) a -= 0.01;
-			if (e.KeyCode == Keys.Z) rot1.RotateW(new Quaternion(1, 0, 0), 0.01);
-			if (e.KeyCode == Keys.X) rot1.RotateW(new Quaternion(0, 1, 0), 0.01);
-			if (e.KeyCode == Keys.C) rot1.RotateW(new Quaternion(0, 0, 1), 0.01);
-			if (e.KeyCode == Keys.V) rot2.RotateW(new Quaternion(1, 0, 0), 0.01);
-			if (e.KeyCode == Keys.B) rot2.RotateW(new Quaternion(0, 1, 0), 0.01);
-			if (e.KeyCode == Keys.N) rot2.RotateW(new Quaternion(1, 0, 0), 0.01);
+			if (e.KeyCode == Keys.T) a += 0.01;
+			if (e.KeyCode == Keys.G) a -= 0.01;
+			if (e.KeyCode == Keys.Z) for (int i = 0; i < Cube.points.Count; i++) Cube.points[i] = Cube.points[i].Rotate (new Quaternion(1, 0, 0), 0.05);
+			if (e.KeyCode == Keys.X) for (int i = 0; i < Cube.points.Count; i++) Cube.points[i] = Cube.points[i].Rotate (new Quaternion(0, 1, 0), 0.05);
+			if (e.KeyCode == Keys.C) for (int i = 0; i < Cube.points.Count; i++) Cube.points[i] = Cube.points[i].Rotate (new Quaternion(0, 0, 1), 0.05);
+			if (e.KeyCode == Keys.V) for (int i = 0; i < Cube.points.Count; i++) Cube.points[i] = Cube.points[i].RotateW(new Quaternion(1, 0, 0), 0.05);
+			if (e.KeyCode == Keys.B) for (int i = 0; i < Cube.points.Count; i++) Cube.points[i] = Cube.points[i].RotateW(new Quaternion(0, 1, 0), 0.05);
+			if (e.KeyCode == Keys.N) for (int i = 0; i < Cube.points.Count; i++) Cube.points[i] = Cube.points[i].RotateW(new Quaternion(0, 0, 1), 0.05);
 		}
 
 		private void MainFormKeyUp(object sender, KeyEventArgs e)
 		{
-			if (e.KeyCode == Keys.D) vel.Im = 0;
-			if (e.KeyCode == Keys.A) vel.Im = 0;
+			if (e.KeyCode == Keys.D) { vel.Im = 0; vel.Km = 0; }
+			if (e.KeyCode == Keys.A) { vel.Im = 0; vel.Km = 0; }
 			if (e.KeyCode == Keys.Space) vel.Jm = 0;
 			if (e.KeyCode == Keys.ShiftKey) vel.Jm = 0;
-			if (e.KeyCode == Keys.W) vel.Km = 0;
-			if (e.KeyCode == Keys.S) vel.Km = 0;
+			if (e.KeyCode == Keys.W) { vel.Im = 0; vel.Km = 0; }
+			if (e.KeyCode == Keys.S) { vel.Im = 0; vel.Km = 0; }
 			if (e.KeyCode == Keys.R) vel.Re = 0;
 			if (e.KeyCode == Keys.F) vel.Re = 0;
 		}
@@ -120,7 +128,7 @@ namespace растеризатор
 			loc.Re += vel.Re / 25;
 			
 			//foreach (Quaternion p in Cube.points) 
-			for (int i = 0; i < Cube.points.Count; i++) Cube.points[i] = Cube.points[i].Rotate(new Quaternion(Math.Sin(0.01 * t), Math.Sin(0.01 * t + 2 * Math.PI / 3), Math.Sin(0.01 * t + 4 * Math.PI / 3)), 0.01);
+			for (int i = 0; i < Cube.points.Count; i++) Cube.points[i] = Cube.points[i].Rotate(new Quaternion(Math.Sin(0.01 * t), Math.Sin(0.01 * t + 2 * Math.PI / 3), Math.Sin(0.01 * t + 4 * Math.PI / 3)), 0.01 * 0);
 			Cube.Update();
 			Draw();
 			//text = "";
@@ -139,9 +147,12 @@ namespace растеризатор
 		
 		void Draw()
 		{
-			gr.Clear(Color.White);
+			gr.Clear(Color.Black);
 			try
 			{
+				//gr.DrawEllipse(new Pen(Color.Red), (float)(pictureBox1.Width / 2 - k), (float)(pictureBox1.Height / 2 - k), (float)(2 * k), (float)(2 * k));
+				gr.FillEllipse(new Pen(Color.FromArgb(127, 191, 255)).Brush, (float)(pictureBox1.Width / 2 - k), (float)(pictureBox1.Height / 2 - k), (float)(2 * k), (float)(2 * k));
+
 				if (loc.Km * loc.Km + loc.Re * loc.Re >= 0)
 				{
 					//foreach (Quaternion h1 in points) foreach (Quaternion h2 in points)
@@ -206,14 +217,13 @@ namespace растеризатор
 						}
 					}
 				}
-				gr.DrawEllipse(new Pen(Color.Red), (float)(pictureBox1.Width / 2 - k), (float)(pictureBox1.Height / 2 - k), (float)(2 * k), (float)(2 * k));
 			} catch { }
 			pictureBox1.Image = bitmap;
 		}
 		
 		Point draw_calculation(Quaternion h)
 		{
-			Quaternion h0 = h.Sub(loc).Rotate(new Quaternion(0, -rot.Im, 0), 0.01).Rotate(new Quaternion(rot.Jm, 0, 0), 0.001).Sum(loc);
+			Quaternion h0 = h.Sub(loc).Rotate(new Quaternion(0, rot.Im, 0), 1).Rotate(new Quaternion(rot.Jm, 0, 0), 1).Sum(loc);
 			//Quaternion h0 = h.Rotate(new Quaternion(1, 0, 0), 0.01 * t);//.RotateW(new Quaternion(0, 1, 0), 0.01 * t * 0);
 			//h0 = h0.Rotate(rot1, 1).RotateW(rot2, 1);
 			return new Point((int)( (h0.Im - loc.Im) / Rd(h0, loc) * k) + pictureBox1.Width  / 2,
@@ -224,5 +234,5 @@ namespace растеризатор
 		{
 			return Math.Sqrt((h1.Im - h2.Im) * (h1.Im - h2.Im) + (h1.Jm - h2.Jm) * (h1.Jm - h2.Jm) + (h1.Km - h2.Km) * (h1.Km - h2.Km) * a * a + (h1.Re - h2.Re) * (h1.Re - h2.Re) * a * a);
 		}
-	}
+    }
 }
